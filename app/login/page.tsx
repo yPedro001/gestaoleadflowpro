@@ -5,11 +5,12 @@ export const metadata = {
   title: 'Login — GestãoLeadFlowPro',
 };
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: Promise<{ error?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f1117] p-4">
       <div className="w-full max-w-md">
@@ -27,7 +28,7 @@ export default function LoginPage({
           </p>
         </div>
 
-        {searchParams.error === 'acesso_negado' && (
+        {resolvedSearchParams.error === 'acesso_negado' && (
           <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-sm text-center">
             Acesso negado. Você não possui permissão de administrador.
           </div>
