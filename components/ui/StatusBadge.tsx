@@ -56,7 +56,7 @@ const planLabels: Record<UserPlan, string> = {
 
 export function StatusBadge({ status, type }: StatusBadgeProps) {
   let colorClass = '';
-  let label = status;
+  let label: string = status;
 
   if (type === 'access') {
     colorClass = accessColors[status as AccessStatus] ?? '';
