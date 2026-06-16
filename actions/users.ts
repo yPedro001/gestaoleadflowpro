@@ -339,11 +339,18 @@ export async function deleteUser(
   const { data: prev } = await admin.from('profiles').select('*').eq('id', profileId).single();
   await logAudit(adminEmail, 'DELETE_USER', email, profileId, prev as Record<string, unknown>, undefined, 'Exclusão definitiva solicitada pelo admin');
 
-  // Excluir do Auth (cascade no banco vai limpar o profile)
+  // Excluir do Auth
   const { error } = await admin.auth.admin.deleteUser(authUid);
 
   if (error) {
-    return { success: false, error: `Erro ao excluir usuário: ${error.message}` };
+    return { success: false, error: `Erro ao excluir usuário do Auth: ${error.message}` };
+  }
+
+  // Excluir o perfil da tabela profiles explicitamente, já que não há cascade automático
+  const { error: profileError } = await admin.from('profiles').delete().eq('id', profileId);
+
+  if (profileError) {
+    return { success: false, error: `Erro ao excluir perfil no banco de dados: ${profileError.message}` };
   }
 
   revalidatePath('/usuarios');
