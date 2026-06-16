@@ -18,6 +18,9 @@ export async function createServerSupabase() {
           } catch {}
         },
       },
+      global: {
+        fetch: (req, init) => fetch(req, { ...init, cache: 'no-store' }),
+      },
     }
   );
 }
@@ -29,5 +32,8 @@ export function createAdminSupabase() {
   if (!url || !key) throw new Error('Supabase URL ou Service Role Key ausentes');
   return createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: {
+      fetch: (req, init) => fetch(req, { ...init, cache: 'no-store' }),
+    },
   });
 }
