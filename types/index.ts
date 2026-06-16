@@ -75,3 +75,36 @@ export interface DashboardStats {
   enterpriseCount: number;
   monthlyRevenue: number;
 }
+
+export type TicketStatus = 'ABERTO' | 'ATENDIMENTO' | 'RESPONDIDO' | 'AGUARDANDO_CLIENTE' | 'RESOLVIDO' | 'FECHADO';
+export type TicketCategory = 'ACESSO' | 'ERRO' | 'DUVIDA' | 'FINANCEIRO' | 'SUGESTAO' | 'OUTRO';
+export type TicketPriority = 'BAIXA' | 'NORMAL' | 'ALTA';
+export type MessageSenderType = 'CUSTOMER' | 'ADMIN';
+
+export interface SupportTicket {
+  id: string;
+  profile_id: string;
+  category: TicketCategory;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  is_read_by_admin: boolean;
+  is_read_by_customer: boolean;
+  last_message_at: string;
+  closed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  profile?: UserProfile; // Joined profile data
+  messages?: SupportTicketMessage[]; // Joined messages
+}
+
+export interface SupportTicketMessage {
+  id: string;
+  ticket_id: string;
+  sender_type: MessageSenderType;
+  sender_profile_id: string | null;
+  message: string;
+  is_internal_note: boolean;
+  created_at: string;
+}

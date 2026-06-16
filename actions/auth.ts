@@ -61,3 +61,22 @@ export async function adminLogout() {
   await supabase.auth.signOut();
   redirect('/login');
 }
+
+export async function checkAdminAccess() {
+  const supabase = await createServerSupabase();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { isAuthorized: false, user: null };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || profile.role !== 'SUPER_ADMIN') {
+    return { isAuthorized: false, user: null };
+  }
+
+  return { isAuthorized: true, user };
+}

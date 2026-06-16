@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, LogOut, ShieldCheck, FileText
+  LayoutDashboard, Users, LogOut, ShieldCheck, FileText, LifeBuoy
 } from 'lucide-react';
 import { adminLogout } from '@/actions/auth';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/usuarios', label: 'Usuários', icon: Users },
+  { href: '/chamados', label: 'Chamados', icon: LifeBuoy },
   { href: '/logs', label: 'Logs de Auditoria', icon: FileText },
 ];
 
