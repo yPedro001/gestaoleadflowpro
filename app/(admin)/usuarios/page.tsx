@@ -9,8 +9,9 @@ export const dynamic = 'force-dynamic';
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: { q?: string; plan?: string; access?: string; payment?: string };
+  searchParams: Promise<{ q?: string; plan?: string; access?: string; payment?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const users = await getUsers();
 
   return (
@@ -33,10 +34,10 @@ export default async function UsersPage({
 
       <UsersTable
         initialUsers={users}
-        initialSearch={searchParams.q}
-        initialPlan={searchParams.plan}
-        initialAccess={searchParams.access}
-        initialPayment={searchParams.payment}
+        initialSearch={resolvedSearchParams.q}
+        initialPlan={resolvedSearchParams.plan}
+        initialAccess={resolvedSearchParams.access}
+        initialPayment={resolvedSearchParams.payment}
       />
     </div>
   );
