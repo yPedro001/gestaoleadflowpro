@@ -5,6 +5,18 @@ import { LifeBuoy, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = { title: 'Chamados | GestãoLeadFlowPro' };
+export const dynamic = 'force-dynamic';
+
+const formatSafeDate = (dateStr: string | null | undefined, formatStr: string) => {
+  if (!dateStr) return 'N/A';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'N/A';
+    return format(d, formatStr, { locale: ptBR });
+  } catch {
+    return 'N/A';
+  }
+};
 
 export default async function ChamadosPage() {
   const tickets = await getAdminTickets();
@@ -92,7 +104,7 @@ export default async function ChamadosPage() {
                     <td className="px-6 py-4">
                       <p className="text-slate-300 flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-slate-500" />
-                        {format(new Date(ticket.last_message_at), "dd MMM, HH:mm", { locale: ptBR })}
+                        {formatSafeDate(ticket.last_message_at, "dd MMM, HH:mm")}
                       </p>
                       {!ticket.is_read_by_admin && (
                         <span className="inline-block mt-1 bg-amber-500 text-[#0f1219] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">

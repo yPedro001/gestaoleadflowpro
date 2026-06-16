@@ -5,6 +5,18 @@ import { LifeBuoy, ArrowLeft, Send, CheckCircle2, User, ShieldCheck, Mail, Calen
 import Link from 'next/link';
 
 export const metadata = { title: 'Detalhes do Chamado | GestãoLeadFlowPro' };
+export const dynamic = 'force-dynamic';
+
+const formatSafeDate = (dateStr: string | null | undefined, formatStr: string) => {
+  if (!dateStr) return 'N/A';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'N/A';
+    return format(d, formatStr, { locale: ptBR });
+  } catch {
+    return 'N/A';
+  }
+};
 
 export default async function ChamadoAdminDetailsPage({ params }: { params: { id: string } }) {
   const ticket = await getAdminTicketDetails(params.id);
@@ -77,7 +89,7 @@ export default async function ChamadoAdminDetailsPage({ params }: { params: { id
                   <div className="flex justify-between items-start mb-2">
                     <span className="font-semibold text-slate-200">{ticket.profile?.name} (Cliente)</span>
                     <span className="text-xs text-slate-500">
-                      {format(new Date(ticket.created_at), "dd MMM yyyy, HH:mm", { locale: ptBR })}
+                      {formatSafeDate(ticket.created_at, "dd MMM yyyy, HH:mm")}
                     </span>
                   </div>
                   <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
@@ -96,7 +108,7 @@ export default async function ChamadoAdminDetailsPage({ params }: { params: { id
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-semibold text-amber-400">Você (Admin)</span>
                           <span className="text-xs text-amber-500/50">
-                            {format(new Date(msg.created_at), "dd MMM yyyy, HH:mm", { locale: ptBR })}
+                            {formatSafeDate(msg.created_at, "dd MMM yyyy, HH:mm")}
                           </span>
                         </div>
                         <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{msg.message}</p>
@@ -111,7 +123,7 @@ export default async function ChamadoAdminDetailsPage({ params }: { params: { id
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-semibold text-slate-200">{ticket.profile?.name} (Cliente)</span>
                           <span className="text-xs text-slate-500">
-                            {format(new Date(msg.created_at), "dd MMM yyyy, HH:mm", { locale: ptBR })}
+                            {formatSafeDate(msg.created_at, "dd MMM yyyy, HH:mm")}
                           </span>
                         </div>
                         <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{msg.message}</p>
@@ -195,14 +207,14 @@ export default async function ChamadoAdminDetailsPage({ params }: { params: { id
                 <div>
                   <p className="text-xs text-slate-500 mb-1">Acesso</p>
                   <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-xs font-bold">
-                    {ticket.profile?.accessStatus}
+                    {ticket.profile?.access_status || 'N/A'}
                   </span>
                 </div>
               </div>
               <div className="border-t border-[#2d3148] pt-4">
                 <p className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Calendar className="w-3 h-3"/> Cliente desde</p>
                 <p className="text-sm text-slate-300">
-                  {ticket.profile?.createdAt ? format(new Date(ticket.profile.createdAt), "dd MMM yyyy", { locale: ptBR }) : 'N/A'}
+                  {formatSafeDate(ticket.profile?.created_at, "dd MMM yyyy")}
                 </p>
               </div>
             </div>

@@ -21,21 +21,33 @@ export type UserRole = 'USER' | 'SUPER_ADMIN';
 export interface UserProfile {
   id: string;
   authUid: string;
+  auth_uid?: string;
   name: string;
   email: string;
   role: UserRole;
   plan: UserPlan;
   accessStatus: AccessStatus;
+  access_status?: AccessStatus;
   paymentStatus: PaymentStatus;
+  payment_status?: PaymentStatus;
   monthlyAmount: number | null;
+  monthly_amount?: number | null;
   paymentMethod: string | null;
+  payment_method?: string | null;
   expiresAt: string | null;
+  expires_at?: string | null;
   lastPaymentAt: string | null;
+  last_payment_at?: string | null;
   nextBillingAt: string | null;
+  next_billing_at?: string | null;
   internalNotes: string | null;
+  internal_notes?: string | null;
   suspensionReason: string | null;
+  suspension_reason?: string | null;
   createdAt: string;
+  created_at?: string;
   updatedAt: string;
+  updated_at?: string;
 }
 
 export interface BillingRecord {

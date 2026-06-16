@@ -71,7 +71,7 @@ export async function checkAdminAccess() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user.id)
+    .eq('auth_uid', user.id)
     .single();
 
   if (!profile || profile.role !== 'SUPER_ADMIN') {
