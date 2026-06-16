@@ -8,10 +8,11 @@ import { UserDetailActions } from '@/components/users/UserDetailActions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function UserDetailPage({ params }: { params: { id: string } }) {
+export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   let user;
   try {
-    user = await getUserById(params.id);
+    const { id } = await params;
+    user = await getUserById(id);
   } catch {
     notFound();
   }

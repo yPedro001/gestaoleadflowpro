@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
-import { createAdminClient } from '@/lib/supabase/middleware-admin';
-
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const pathname = request.nextUrl.pathname;
@@ -18,14 +16,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Verificar se é SUPER_ADMIN
+  // Verificar se é SUPER_ADMIN via fetch (seguro no Edge Runtime)
   try {
-    const adminClient = createAdminClient();
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('role')
-      .eq('auth_uid', user.id)
-      .single();
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?auth_uid=eq.${user.id}&select=role`;
+    const res = await fetch(url, {
+      headers: {
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+      },
+    });
+    
+    if (!res.ok) throw new Error('Falha ao buscar perfil');
+    const data = await res.json();
+    const profile = data?.[0];
 
     if (!profile || profile.role !== 'SUPER_ADMIN') {
       const url = request.nextUrl.clone();
