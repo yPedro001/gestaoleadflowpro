@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Filter, Eye, Edit, UserX, UserCheck, Ban, DollarSign } from 'lucide-react';
+import { Search, Settings2, UserX, UserCheck, DollarSign } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { formatDate } from '@/lib/utils';
-import type { UserProfile, UserPlan, AccessStatus, PaymentStatus } from '@/types';
+import type { UserProfile } from '@/types';
 import { QuickActionModal } from './QuickActionModal';
 
 interface Props {
@@ -154,17 +154,11 @@ export function UsersTable({
                       <div className="flex items-center gap-1">
                         <Link
                           href={`/usuarios/${u.id}`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-                          title="Ver detalhes"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 transition-all hover:bg-amber-500/20 hover:text-amber-200"
+                          title="Gerenciar usuario"
                         >
-                          <Eye className="w-4 h-4" />
-                        </Link>
-                        <Link
-                          href={`/usuarios/${u.id}/editar`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-all"
-                          title="Editar"
-                        >
-                          <Edit className="w-4 h-4" />
+                          <Settings2 className="w-4 h-4" />
+                          Gerenciar
                         </Link>
                         {u.accessStatus === 'ATIVO' || u.accessStatus === 'EM_TESTE' ? (
                           <button

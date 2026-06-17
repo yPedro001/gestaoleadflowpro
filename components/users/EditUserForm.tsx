@@ -51,7 +51,6 @@ export function EditUserForm({ user }: Props) {
 
       if (result.success) {
         toast.success('Dados atualizados com sucesso!');
-        router.push(`/usuarios/${user.id}`);
         router.refresh();
       } else {
         toast.error(result.error || 'Erro ao salvar.');

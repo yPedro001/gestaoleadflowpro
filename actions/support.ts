@@ -109,7 +109,11 @@ export async function adminReplyTicket(ticketId: string, message: string, newSta
       title: 'Nova Resposta no Suporte',
       message: `A equipe do LeadFlowPro respondeu ao seu chamado.`,
       type: 'TICKET_UPDATE',
-      is_read: false
+      is_read: false,
+      metadata: {
+        ticketId,
+        targetUrl: `/suporte/${ticketId}`,
+      },
     });
     if (notifError) console.error("Could not send notification:", notifError);
   }
@@ -144,6 +148,27 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus,
     .eq('id', ticketId);
 
   if (error) throw error;
+
+  const { data: ticket } = await supabase
+    .from('support_tickets')
+    .select('profile_id')
+    .eq('id', ticketId)
+    .single();
+
+  if (ticket) {
+    const { error: notifError } = await supabase.from('notifications').insert({
+      profile_id: ticket.profile_id,
+      title: 'Atualizacao no Suporte',
+      message: `Seu chamado foi atualizado para ${status}.`,
+      type: 'TICKET_UPDATE',
+      is_read: false,
+      metadata: {
+        ticketId,
+        targetUrl: `/suporte/${ticketId}`,
+      },
+    });
+    if (notifError) console.error('Could not send notification:', notifError);
+  }
 
   revalidatePath('/chamados');
   revalidatePath(`/chamados/${ticketId}`);

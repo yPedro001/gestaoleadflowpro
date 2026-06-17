@@ -5,6 +5,7 @@ import { createAdminSupabase } from '@/lib/supabase/server';
 import type { AccessStatus, PaymentStatus, UserPlan } from '@/types';
 import { z } from 'zod';
 import { checkAdminAccess } from '@/actions/auth';
+import { normalizeUserProfile, normalizeUserProfiles } from '@/lib/user-mapper';
 
 const createUserSchema = z.object({
   name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
@@ -373,7 +374,7 @@ export async function getUsers() {
     .order('created_at', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data;
+  return normalizeUserProfiles(data ?? []);
 }
 
 // ─────────────────────────────────────────────
@@ -389,7 +390,7 @@ export async function getUserById(id: string) {
     .single();
 
   if (error) throw new Error(error.message);
-  return data;
+  return normalizeUserProfile(data);
 }
 
 // ─────────────────────────────────────────────
