@@ -3,6 +3,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { LifeBuoy, ArrowLeft, Send, CheckCircle2, User, ShieldCheck, Mail, Calendar, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import type { TicketPriority, TicketStatus } from '@/types';
 
 export const metadata = { title: 'Detalhes do Chamado | GestãoLeadFlowPro' };
 export const dynamic = 'force-dynamic';
@@ -18,22 +20,43 @@ const formatSafeDate = (dateStr: string | null | undefined, formatStr: string) =
   }
 };
 
-export default async function ChamadoAdminDetailsPage({ params }: { params: { id: string } }) {
-  const ticket = await getAdminTicketDetails(params.id);
+const ticketStatuses = ['ABERTO', 'ATENDIMENTO', 'RESPONDIDO', 'AGUARDANDO_CLIENTE', 'RESOLVIDO', 'FECHADO'] as const;
+const ticketPriorities = ['BAIXA', 'NORMAL', 'ALTA'] as const;
+
+function parseTicketStatus(value: FormDataEntryValue | null): TicketStatus | undefined {
+  return typeof value === 'string' && ticketStatuses.includes(value as TicketStatus)
+    ? (value as TicketStatus)
+    : undefined;
+}
+
+function parseTicketPriority(value: FormDataEntryValue | null): TicketPriority | undefined {
+  return typeof value === 'string' && ticketPriorities.includes(value as TicketPriority)
+    ? (value as TicketPriority)
+    : undefined;
+}
+
+export default async function ChamadoAdminDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const ticket = await getAdminTicketDetails(id).catch(() => null);
+
+  if (!ticket) {
+    notFound();
+  }
 
   async function handleReply(formData: FormData) {
     'use server';
     const message = formData.get('message') as string;
-    const status = formData.get('status') as any;
-    const priority = formData.get('priority') as any;
+    const status = parseTicketStatus(formData.get('status'));
+    const priority = parseTicketPriority(formData.get('priority'));
     
-    await adminReplyTicket(params.id, message, status, priority);
+    await adminReplyTicket(id, message, status, priority);
   }
 
   async function handleStatusChange(formData: FormData) {
     'use server';
-    const status = formData.get('status') as any;
-    await updateTicketStatus(params.id, status);
+    const status = parseTicketStatus(formData.get('status'));
+    if (!status) return;
+    await updateTicketStatus(id, status);
   }
 
   const getStatusBadge = (status: string) => {

@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase, createServerSupabase } from '@/lib/supabase/server';
 
 export type AuthResult = {
   success: boolean;
@@ -39,7 +39,8 @@ export async function adminLogin(
   }
 
   // Verifica role no banco
-  const { data: profile } = await supabase
+  const admin = createAdminSupabase();
+  const { data: profile } = await admin
     .from('profiles')
     .select('role')
     .eq('email', email)
@@ -68,7 +69,8 @@ export async function checkAdminAccess() {
 
   if (!user) return { isAuthorized: false, user: null };
 
-  const { data: profile } = await supabase
+  const admin = createAdminSupabase();
+  const { data: profile } = await admin
     .from('profiles')
     .select('role')
     .eq('auth_uid', user.id)

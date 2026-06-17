@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase } from '@/lib/supabase/server';
 import { SupportTicket, TicketStatus, TicketPriority } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { checkAdminAccess } from '@/actions/auth';
@@ -9,7 +9,7 @@ export async function getAdminTickets() {
   const { isAuthorized } = await checkAdminAccess();
   if (!isAuthorized) throw new Error('Não autorizado');
 
-  const supabase = await createServerSupabase();
+  const supabase = createAdminSupabase();
   const { data, error } = await supabase
     .from('support_tickets')
     .select(`
@@ -31,7 +31,7 @@ export async function getAdminTicketDetails(id: string) {
   const { isAuthorized } = await checkAdminAccess();
   if (!isAuthorized) throw new Error('Não autorizado');
 
-  const supabase = await createServerSupabase();
+  const supabase = createAdminSupabase();
   const { data, error } = await supabase
     .from('support_tickets')
     .select(`
@@ -64,7 +64,12 @@ export async function adminReplyTicket(ticketId: string, message: string, newSta
   const { isAuthorized, user } = await checkAdminAccess();
   if (!isAuthorized) throw new Error('Não autorizado');
 
-  const supabase = await createServerSupabase();
+  const supabase = createAdminSupabase();
+  const { data: adminProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('auth_uid', user?.id)
+    .maybeSingle();
   
   // Create message
   const { error: msgError } = await supabase
@@ -72,7 +77,7 @@ export async function adminReplyTicket(ticketId: string, message: string, newSta
     .insert({
       ticket_id: ticketId,
       sender_type: 'ADMIN',
-      sender_profile_id: user?.id,
+      sender_profile_id: adminProfile?.id ?? null,
       message,
     });
 
@@ -117,7 +122,7 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus,
   const { isAuthorized } = await checkAdminAccess();
   if (!isAuthorized) throw new Error('Não autorizado');
 
-  const supabase = await createServerSupabase();
+  const supabase = createAdminSupabase();
   const updateData: any = {
     status,
     is_read_by_customer: false, 

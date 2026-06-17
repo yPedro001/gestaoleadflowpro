@@ -1,9 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createAdminSupabase, createServerSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase } from '@/lib/supabase/server';
 import type { AccessStatus, PaymentStatus, UserPlan } from '@/types';
 import { z } from 'zod';
+import { checkAdminAccess } from '@/actions/auth';
 
 const createUserSchema = z.object({
   name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
@@ -25,9 +26,11 @@ export type ActionResult = {
 };
 
 async function getAdminEmail(): Promise<string> {
-  const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.email || 'admin@system';
+  const { isAuthorized, user } = await checkAdminAccess();
+  if (!isAuthorized || !user?.email) {
+    throw new Error('Não autorizado');
+  }
+  return user.email;
 }
 
 async function logAudit(
@@ -361,6 +364,7 @@ export async function deleteUser(
 // Buscar todos os usuários (para tabela)
 // ─────────────────────────────────────────────
 export async function getUsers() {
+  await getAdminEmail();
   const admin = createAdminSupabase();
   const { data, error } = await admin
     .from('profiles')
@@ -376,6 +380,7 @@ export async function getUsers() {
 // Buscar usuário por ID
 // ─────────────────────────────────────────────
 export async function getUserById(id: string) {
+  await getAdminEmail();
   const admin = createAdminSupabase();
   const { data, error } = await admin
     .from('profiles')
@@ -391,6 +396,7 @@ export async function getUserById(id: string) {
 // Buscar estatísticas do dashboard
 // ─────────────────────────────────────────────
 export async function getDashboardStats() {
+  await getAdminEmail();
   const admin = createAdminSupabase();
   const { data: users, error } = await admin
     .from('profiles')
@@ -428,6 +434,7 @@ export async function getDashboardStats() {
 // Buscar logs de auditoria
 // ─────────────────────────────────────────────
 export async function getAuditLogs(limit = 100) {
+  await getAdminEmail();
   const admin = createAdminSupabase();
   const { data, error } = await admin
     .from('admin_audit_logs')
